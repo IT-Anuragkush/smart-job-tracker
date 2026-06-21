@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+
+    <link rel="stylesheet" href="/css/jobs.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
+
+  </head>
+  <body>
+
+    <nav class="navbar">
+      <div class="logo">
+        Smart Job Tracker
+      </div>
+
+      <ul class="nav-links">
+        <li><a href="/dashboard">Dashboard</a></li>
+        <li><a href="/jobs">Jobs</a></li>
+        <li><a href="/profile">Profile</a></li>
+      </ul>
+
+      <button id="logoutBtn">Logout</button>
+    </nav>
+    
+    <div class="header-title">
+      <h2>💼 Job Tracker</h2>
+    </div>
+
+    <div class="top-controls">
+      <input type="text" id="search" placeholder="Search company or role" />
+
+      <select id="filterStatus">
+        <option value="">All Status</option>
+        <option value="Applied">Applied</option>
+        <option value="Interview">Interview</option>
+        <option value="Offer">Offer</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+
+      <select id="sort">
+        <option value="">Sort By</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+      </select>
+
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <form id="jobForm">
+      <input type="text" id="companyName" placeholder="Company Name" required />
+
+      <input type="text" id="jobTitle" placeholder="Job Title" required />
+
+      <select id="status">
+        <option value="Applied">Applied</option>
+        <option value="Interview">Interview</option>
+        <option value="Offer">Offer</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+
+      <button type="submit">Add Job</button>
+    </form>
+
+    <hr />
+
+    <div id="jobsContainer"></div>
+
+    <div id="loader" class="loader-container">
+      <div class="loader"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="/js/jobs.js"></script>
+    
+  </body>
+</html>
