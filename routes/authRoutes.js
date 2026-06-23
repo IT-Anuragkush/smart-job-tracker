@@ -1,21 +1,27 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const User = require("../models/User");
-const authMiddleware = require("../middleware/authMiddleware");
 const Job = require("../models/Job");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-
 // ======================
-// Register Route
+// REGISTER
 // ======================
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Check existing user
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -25,10 +31,8 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
     await User.create({
       name,
       email,
@@ -39,10 +43,7 @@ router.post("/register", async (req, res) => {
       success: true,
       message: "User registered successfully",
     });
-
   } catch (error) {
-    console.error(error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -52,13 +53,19 @@ router.post("/register", async (req, res) => {
 
 
 // ======================
-// Login Route
+// LOGIN
 // ======================
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password required",
+      });
+    }
+
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -68,11 +75,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -81,17 +84,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    console.log("LOGIN SECRET:", process.env.JWT_SECRET);
-
-    // Generate token
     const token = jwt.sign(
-      {
-        id: user._id,
-      },
+      { id: user._id },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
+      { expiresIn: "7d" }
     );
 
     res.status(200).json({
@@ -100,8 +96,6 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-
     res.status(500).json({
       success: false,
       message: error.message,
@@ -111,54 +105,119 @@ router.post("/login", async (req, res) => {
 
 
 // ======================
-// Protected Route
+// GET PROFILE
 // ======================
-router.get("/profile", authMiddleware, (req, res) => {
+router.get("/profile", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
     res.status(200).json({
       success: true,
-      user: req.user,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
-);
+});
 
+
+// ======================
+// UPDATE PROFILE
+// ======================
 router.put("/profile", authMiddleware, async (req, res) => {
-    try {
-      const { name, email } = req.body;
+  try {
+    const { name, email } = req.body;
 
-      const user = await User.findByIdAndUpdate(
-        req.user._id,
-        {
-          name,
-          email,
-        },
-        {
-          new: true,
-        }
-      );
-
-      res.status(200).json({
-        success: true,
-        user,
-      });
-
-    } catch (error) {
-      res.status(500).json({
+    if (!name || !email) {
+      return res.status(400).json({
         success: false,
-        message: error.message,
+        message: "Name and email required",
       });
     }
-  }
-);
 
-router.delete("/delete-account", authMiddleware, async (req, res) => {
-  try {
-    await Job.deleteMany({
-      userId: req.user.id,
+    const existing = await User.findOne({ email });
+
+    if (existing && existing._id.toString() !== req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already in use",
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, email },
+      { new: true }
+    ).select("-password");
+
+    res.status(200).json({
+      success: true,
+      user,
     });
 
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+
+// ======================
+// CHANGE PASSWORD
+// ======================
+router.put("/change-password", authMiddleware, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Old password is incorrect",
+      });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password changed successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+
+// ======================
+// DELETE ACCOUNT
+// ======================
+router.delete("/delete-account", authMiddleware, async (req, res) => {
+  try {
+    await Job.deleteMany({ userId: req.user.id });
     await User.findByIdAndDelete(req.user.id);
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Account deleted successfully",
     });
@@ -170,70 +229,5 @@ router.delete("/delete-account", authMiddleware, async (req, res) => {
     });
   }
 });
-
-router.put(
-  "/change-password",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      const { oldPassword, newPassword } = req.body;
-
-      const user = await User.findById(req.user.id);
-
-      const isMatch = await bcrypt.compare(
-        oldPassword,
-        user.password
-      );
-
-      if (!isMatch) {
-        return res.status(400).json({
-          success: false,
-          message: "Old password is incorrect",
-        });
-      }
-
-      const hashedPassword = await bcrypt.hash(
-        newPassword,
-        10
-      );
-
-      user.password = hashedPassword;
-
-      await user.save();
-
-      res.json({
-        success: true,
-        message: "Password changed successfully",
-      });
-
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  }
-);
-
-// router.get("/reset-my-password", async (req, res) => {
-//   try {
-//     const hashedPassword = await bcrypt.hash("123456", 10);
-
-//     await User.updateOne(
-//       { email: "anuragkush2001@gamil.com" },
-//       { password: hashedPassword }
-//     );
-
-//     res.json({
-//       success: true,
-//       message: "Password reset to 123456",
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// });
 
 module.exports = router;

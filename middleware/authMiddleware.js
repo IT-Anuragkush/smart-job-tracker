@@ -5,7 +5,6 @@ const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    // Check if token exists
     if (!authHeader) {
       return res.status(401).json({
         success: false,
@@ -13,18 +12,11 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Extract token
     const token = authHeader.split(" ")[1];
 
-    // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET
-    );
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Get user from database
-    const user = await User.findById(decoded.id)
-      .select("-password");
+    const user = await User.findById(decoded.id);
 
     if (!user) {
       return res.status(401).json({
@@ -33,8 +25,10 @@ const authMiddleware = async (req, res, next) => {
       });
     }
 
-    // Attach user to request
-    req.user = user;
+    // ✅ FIX: only store id
+    req.user = {
+      id: user._id.toString(),
+    };
 
     next();
 
