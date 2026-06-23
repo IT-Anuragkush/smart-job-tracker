@@ -1,21 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  
-  <link rel="stylesheet" href="/css/auth.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
 
-</head>
-<body>
-  <form id="registerForm">
-  <input type="text" id="name" placeholder="Name">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button type="submit">Register</button>
-</form>
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body>
+    <form id="registerForm">
+      <div class="logo">Smart Job Tracker</div>
 
-<script src="/js/register.js"></script>
-</body>
+      <h2>Register</h2>
+
+      <input type="text" id="name" placeholder="Enter Name" required />
+
+      <input type="email" id="email" placeholder="Enter Email" required />
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter Password"
+        required
+      />
+
+      <button type="submit">Register</button>
+
+      <p>
+        Already have an account?
+        <a href="/login">Login</a>
+      </p>
+    </form>
+
+    <script src="/js/register.js"></script>
+  </body>
 </html>

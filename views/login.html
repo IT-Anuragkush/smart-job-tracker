@@ -1,20 +1,35 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
 
-  <link rel="stylesheet" href="/css/auth.css">
-  
-</head>
-<body>
-  <form id="loginForm">
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button type="submit">Login</button>
-</form>
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body>
+    <form id="loginForm">
+      <div class="logo">Smart Job Tracker</div>
 
-<script src="/js/login.js"></script>
-</body>
+      <h2>Login</h2>
+
+      <input type="email" id="email" placeholder="Enter Email" required />
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter Password"
+        required
+      />
+
+      <button type="submit">Login</button>
+
+      <p>
+        Don't have an account?
+        <a href="/register">Register</a>
+      </p>
+    </form>
+
+    <script src="/js/login.js"></script>
+  </body>
 </html>
