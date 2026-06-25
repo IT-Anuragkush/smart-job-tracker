@@ -88,6 +88,14 @@ async function init() {
 
 init();
 
+const addJobBtn = document.getElementById("addJobBtn");
+
+if (addJobBtn) {
+  addJobBtn.addEventListener("click", () => {
+    window.location.href = "/jobs";
+  });
+}
+
 document.getElementById("logoutBtn").addEventListener("click", () => {
   localStorage.removeItem("token");
   window.location.href = "/login";

@@ -3,8 +3,18 @@ const form = document.getElementById("loginForm");
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const email = document.getElementById("email").value;
+  const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Email Address",
+    });
+    return;
+  }
 
   try {
     const response = await fetch("/api/auth/login", {
@@ -22,12 +32,28 @@ form.addEventListener("submit", async (e) => {
 
     if (data.success) {
       localStorage.setItem("token", data.token);
-      alert("Login Successful");
-      window.location.href = "/dashboard";
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1500);
     } else {
-      alert(data.message);
+      Swal.fire({
+        icon: "error",
+        title: data.message,
+      });
     }
   } catch (error) {
     console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Something went wrong",
+    });
   }
 });

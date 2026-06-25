@@ -15,6 +15,7 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // Empty Fields Validation
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -22,7 +23,48 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    // Name Validation
+    if (name.trim().length < 3) {
+      return res.status(400).json({
+        success: false,
+        message: "Name must be at least 3 characters",
+      });
+    }
+
+    const nameRegex = /^[A-Za-z ]+$/;
+
+    if (!nameRegex.test(name)) {
+      return res.status(400).json({
+        success: false,
+        message: "Name can contain only letters and spaces",
+      });
+    }
+
+    // Email Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid email address",
+      });
+    }
+
+    // Password Validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Password must contain uppercase, lowercase and a number",
+      });
+    }
+
+    // Check Existing User
+    const existingUser = await User.findOne({
+      email: email.toLowerCase(),
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -31,11 +73,13 @@ router.post("/register", async (req, res) => {
       });
     }
 
+    // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create User
     await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password: hashedPassword,
     });
 
@@ -43,10 +87,13 @@ router.post("/register", async (req, res) => {
       success: true,
       message: "User registered successfully",
     });
+
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Server Error",
     });
   }
 });
@@ -208,6 +255,48 @@ router.put("/change-password", authMiddleware, async (req, res) => {
   }
 });
 
+// ======================
+// FORGOT PASSWORD
+// ======================
+
+router.put("/forgot-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+});
 
 // ======================
 // DELETE ACCOUNT
