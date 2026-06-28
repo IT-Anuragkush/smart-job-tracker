@@ -41,7 +41,7 @@ router.post("/register", async (req, res) => {
     }
 
     // Email Validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail)\.(com|in)$/i;
 
     if (!emailRegex.test(email)) {
       return res.status(400).json({

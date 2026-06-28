@@ -148,9 +148,9 @@ Create a `.env` file in the root directory and add:
 ```env
 PORT=5000
 
-MONGO_URI=mongodb://anuragkush2001_db:Anurag1234DBMS@ac-lzpryhh-shard-00-00.ehqjyyw.mongodb.net:27017,ac-lzpryhh-shard-00-01.ehqjyyw.mongodb.net:27017,ac-lzpryhh-shard-00-02.ehqjyyw.mongodb.net:27017/?ssl=true&replicaSet=atlas-f2uaqg-shard-0&authSource=admin&appName=Cluster0
+MONGO_URI=mongodb://<username>:<password>@ac-lzpryhh-shard-00-00.ehqjyyw.mongodb.net:27017,ac-lzpryhh-shard-00-01.ehqjyyw.mongodb.net:27017,ac-lzpryhh-shard-00-02.ehqjyyw.mongodb.net:27017/?ssl=true&replicaSet=atlas-f2uaqg-shard-0&authSource=admin&appName=Cluster0
 
-JWT_SECRET=mysecretkey123
+JWT_SECRET=your_jwt_secret
 ```
 
 ---

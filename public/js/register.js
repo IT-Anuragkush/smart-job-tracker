@@ -27,7 +27,7 @@ form.addEventListener("submit", async (e) => {
   }
 
   // Email Validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail)\.(com|in)$/i;
 
   if (!emailRegex.test(email)) {
     Swal.fire({

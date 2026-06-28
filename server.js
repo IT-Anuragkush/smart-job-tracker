@@ -1,12 +1,16 @@
 const express = require("express");
+const path = require("path");
+const dns = require("dns");
+
 require("dotenv").config();
+
+// Fix MongoDB Atlas SRV DNS lookup (required on some Windows systems)
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 
 const connectDB = require("./config/db");
 
 const authRoutes = require("./routes/authRoutes");
 const jobRoutes = require("./routes/jobRoutes");
-
-const path = require("path");
 
 const app = express();
 
